@@ -7,7 +7,6 @@
                     <p><span v-if="usuario">{{ usuario.nombre }}</span>, debes elegir fecha y hora para tu cita</p>
                 </div>
             </div>
-            <hr class="red">
             <br>
             <form @submit="agregarCita">
                 <div class="row">
@@ -21,14 +20,19 @@
                         <input type="text" required="required" class="timepicker" v-model="agregarHora">
                         <label>Hora</label>
                     </div>
-                    <div class="input-field col s8">
+                    <div class="input-field col s12">
                         <i class="material-icons prefix">healing</i>
-                        <input type="text" required="required" v-model="Motivo">
+                        <input type="text" required="required" v-model="agregarMotivo">
                         <label>Motivo</label>
                     </div>
-                    <button class="btn waves-effect waves-light blue-grey right btn-large" type="submit" name="action">Reservar
-                        <i class="material-icons right white-text">check</i>
-                    </button>
+                    <div class="col s12">
+                        <button class="btn waves-effect waves-light blue-grey right btn-large" type="submit" name="action" @click="agregarCita">Reservar
+                            <i class="material-icons right white-text">check</i>
+                        </button>
+                        <button class="btn waves-effect waves-light grey right btn-large" type="submit" name="action" @click="cancelarCita">Cancelar
+                            <i class="material-icons right white-text">close</i>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -40,20 +44,39 @@ import { db } from '@/firebase.js'
 
 export default {
     name: 'reservar',
-    data() {
-        return {
-            //datos de nuestra cita
-            agregarFecha: '',
-            agregarHora: '',
-            agregarMotivo: '',
-        }
-    },
     computed: {
         usuario() {
             return this.$store.state.usuario;
         }
     },
+    data() {
+        return {
+            //datos de nuestra cita
+            agregarFecha: '',
+            agregarHora: '',
+            agregarMotivo: ''
+        }
+    },
     methods:{
+        agregarCita() {
+            db.collection('citasDoctor').add({
+                fecha: this.agregarFecha,
+                hora: this.agregarHora,
+                motivo: this.agregarMotivo,
+                nombre: this.$store.state.usuario.nombre
+            })
+            // Redireccionar
+            .then(() => {
+                this.$router.push('/')
+            })
+            // Limpiar fomulario
+            this.agregarFecha = '';
+            this.agregarHora = '';
+            this.agregarMotivo = ''; 
+        },
+        cancelarCita() {   
+            this.$router.push('/')
+        }
 
     },
     mounted: function()  {
@@ -77,5 +100,8 @@ export default {
 }
 .card-panel {
     margin-top:4rem;
+}
+button {
+    margin: 4rem 0 4rem 4rem;
 }
 </style>   
