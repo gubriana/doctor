@@ -8,28 +8,28 @@
                 </div>
             </div>
             <br>
-            <form @submit="agregarCita">
+            <form @submit.prevent="agregarCita">
                 <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">healing</i>
+                        <input type="text" required="required" v-model="agregarMotivo" id="agregarMotivo">
+                        <label>Motivo</label>
+                    </div>
                     <div class="input-field col s6">
                         <i class="material-icons prefix">date_range</i>
-                        <input type="text" required="required" class="datepicker" v-model="agregarFecha">
+                        <input type="text" required="required" class="datepicker"  id="agregarFecha" v-model="agregarFecha">
                         <label>Fecha</label>
                     </div>
                     <div class="input-field col s6">
                         <i class="material-icons prefix">access_time</i>
-                        <input type="text" required="required" class="timepicker" v-model="agregarHora">
+                        <input type="text" required="required" class="timepicker" id="agregarHora" v-model="agregarHora" duration=10>
                         <label>Hora</label>
                     </div>
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">healing</i>
-                        <input type="text" required="required" v-model="agregarMotivo">
-                        <label>Motivo</label>
-                    </div>
                     <div class="col s12">
-                        <button class="btn waves-effect waves-light blue-grey right btn-large" type="submit" name="action" @click="agregarCita">Reservar
+                        <input class="btn waves-effect waves-light blue-grey right btn-large" type="submit" name="action">Reservar
                             <i class="material-icons right white-text">check</i>
-                        </button>
-                        <button class="btn waves-effect waves-light grey right btn-large" type="submit" name="action" @click="cancelarCita">Cancelar
+            
+                        <button class="btn waves-effect waves-light grey right btn-large" type="button" name="action" @click.prevent="cancelarCita">Cancelar
                             <i class="material-icons right white-text">close</i>
                         </button>
                     </div>
@@ -51,40 +51,59 @@ export default {
     },
     data() {
         return {
-            //datos de nuestra cita
+            //datos cita
             agregarFecha: '',
             agregarHora: '',
             agregarMotivo: ''
         }
     },
-    methods:{
-        agregarCita() {
+    methods:{        
+        agregarCita() {            
             db.collection('citasDoctor').add({
-                fecha: this.agregarFecha,
-                hora: this.agregarHora,
+                fecha: document.querySelector('.datepicker').value,
+                hora: document.querySelector('.timepicker').value,
                 motivo: this.agregarMotivo,
                 nombre: this.$store.state.usuario.nombre
             })
             // Redireccionar
             .then(() => {
+                alert('agregaste una cita')
+                // Limpiar fomulario
+                this.agregarFecha = '';
+                this.agregarHora = '';
+                this.agregarMotivo = '';
                 this.$router.push('/')
             })
-            // Limpiar fomulario
-            this.agregarFecha = '';
-            this.agregarHora = '';
-            this.agregarMotivo = ''; 
         },
         cancelarCita() {   
             this.$router.push('/')
         }
-
     },
     mounted: function()  {
-        M.AutoInit();
-        const date = document.querySelectorAll('.datepicker');
-        M.Datepicker.init(date, {});
-        const time = document.querySelectorAll('.timepicker');
-        M.Timepicker.init(time, {});
+        const fecha = document.querySelectorAll('.datepicker');
+        M.Datepicker.init(fecha, {
+            format: 'dddd dd.mm.yy',
+            i18n: {
+                cancel: 'Cancelar',
+                clear: 'Limpiar',
+                done: 'Ok',
+                months: [ 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre' ],
+                monthsShort: [ 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic' ],
+                weekdays: [ 'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado' ],
+                weekdaysShort: [ 'Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab' ],
+                weekdaysAbbrev: ['S','L','M','M','J','V','S']	
+            }
+        });
+        
+        const hora = document.querySelectorAll('.timepicker');
+        M.Timepicker.init(hora, {
+            i18n: {
+                cancel: 'Cancelar',
+                clear: 'Limpiar',
+                done: 'Ok'
+            },
+            showClearBtn: true,
+        });       
     },
 
     firestore() {           // adding this key/function

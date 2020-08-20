@@ -26,53 +26,58 @@
         </div>
 
         <div class="col m12">
-            <table class="striped responsive-table highlight">
+            <table class="striped responsive-table highlight" >
                 <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>nombre</th>
-                    <th>Motivo</th>
-                    <th>Eliminar</th>
-                </tr>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Nombre</th>
+                        <th>Motivo</th>
+                        <th>Eliminar</th>
+                    </tr>
                 </thead>
 
                 <tbody>
-                <tr>
-                    <td>12.02.20</td>
-                    <td>15.30</td>
-                    <td>Gabri</td>
-                    <td>Dolor de panza</td>
-                    <td><i class="material-icons">delete</i></td>
-                </tr>
-                <tr>
-                    <td>18.12.20</td>
-                    <td>15.30</td>
-                    <td>Mr.A</td>
-                    <td>Control</td>
-                    <td><i class="material-icons">delete</i></td>
-                </tr>
-                <tr>
-                    <td>15.02.20</td>
-                    <td>11.30</td>
-                    <td>Rodri</td>
-                    <td>Malesta estomacal</td>
-                    <td><i class="material-icons">delete</i></td>
-                </tr>
+                    <tr v-for="cita in citasDoctor" :key="cita.id">
+                        <td>{{cita.fecha}}</td>
+                        <td>{{cita.hora}}</td>
+                        <td>{{cita.nombre}}</td>
+                        <td>{{cita.motivo}}</td>
+                        <td><button @click.prevent="borrarCita(cita.id)"> <i class="material-icons" >delete</i></button></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </template>
 <script>
+import { db } from '@/firebase.js'
 
 export default {
     name: 'CitasDoctor',
+    data() {
+        return {
+            citasDoctor: []
+        }
+    },
     computed: {
         usuario() {
             return this.$store.state.usuario;
         }
+    },
+    methods: {
+        borrarCita(id) {
+            const respuesta = confirm('¿Quieres borrar esta cita?');
+            if (respuesta == false) { return; }
+            db.collection("citasDoctor").doc(id).delete();
+        }
+    },
+    firestore() {           // adding this key/function
+        return {
+            citasDoctor: db.collection('citasDoctor')
+        }
     }
+    
 }
 </script>
 <style scoped>
